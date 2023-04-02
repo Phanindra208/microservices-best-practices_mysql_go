@@ -1,0 +1,291 @@
+swagger: "2.0"
+info:
+  description: microservice API
+  version: 1.0.0
+  title: microservice API
+basePath: /
+schemes:
+  - http
+  - https
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /liveness:
+    get:
+      tags:
+        - Health
+      operationId: Liveness
+      responses:
+        204:
+          description: No content
+
+  /readiness:
+    get:
+      tags:
+        - Health
+      operationId: Readiness
+      responses:
+        204:
+          description: No content
+  
+  
+           
+  /register:
+    post:
+      tags:
+        - student
+      summary: register student
+      operationId:  Create_Register
+      description:  create Register
+      parameters:
+        - in: body
+          required: true
+          name: payload
+          schema:
+            $ref: '#/definitions/register'
+      responses:
+        204:
+          description: No content   
+        400:
+          description: |
+            Bad request <br>
+           
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal error  
+  /commonstudents:
+    get:
+      tags:
+        - student
+      summary: Get Common Students
+      operationId: Get_Common_Students
+      description: Get Common Students
+      parameters:
+      - in: query
+        name: teacher_id
+        type: array
+        items:
+             type: string
+     
+      responses:
+        200:
+          description: Get Common Students
+          schema:
+            $ref: '#/definitions/common_students'
+        400:
+          description: |
+            Bad request <br>
+           
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal error       
+  /suspend:
+    post:
+      tags:
+        - teacher
+      summary: Suspend Student(s)
+      operationId:  suspend_student
+      description:  suspend_student
+      parameters:
+        - in: query
+          type: string
+          name: teacher_id
+        - in: body
+          required: true
+          name: payload
+          schema:
+            $ref: '#/definitions/suspend_students'
+      responses:
+        204:
+         description: No content
+        400:
+          description: |
+            Bad request <br>
+           
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal error   
+  /retrievefornotifications:
+    post:
+      tags:
+        - teacher
+      summary: Retrieve For Notifications
+      operationId: retrieve_for_notifications
+      description: retrieve_for_notifications
+      parameters:
+        - in: body
+          required: true
+          name: payload
+          schema:
+            $ref: '#/definitions/retrieve_for_notifications'
+      responses:
+        200:
+          description: Retrieve For Notifications
+          schema:
+            $ref: '#/definitions/recipients'
+        400:
+          description: |
+            Bad request <br>
+           
+          schema:
+            $ref: '#/definitions/ErrorResponse'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+        500:
+          description: Internal error 
+  
+  
+ 
+           
+
+
+definitions:
+
+  ErrorResponse:
+    description: Error response body for 4xx responses
+    properties:
+      code:
+        description: |
+          6xx if validation error.
+          1000+ for special errors.
+          Otherwise, normal HTTP status codes apply.
+        type: integer
+      message:
+        description: Informative text - not for error checking
+        type: string
+      validation:
+        description: Details about validation error
+        type: object
+        properties:
+          param:
+            description: The parameter name which caused the error
+            type: string
+          code:
+            description: Error code for validation error - like error_code
+            type: string  
+  teacher:
+    description: Teacherr structure
+    properties:
+      teacher_id:
+        type: string
+        x-go-name: teacher_id
+      teacher_email:
+        type: string
+        x-go-name: teacher_email   
+    type: object
+    x-go-package: github.com/iAmPlus/microservice/models  
+  student:
+    description: Student structure
+    properties:
+      student_id:
+        type: string
+        x-go-name: student_id
+      student_email:
+        type: string
+        x-go-name: student_email 
+      status:
+        type: string
+        x-go-name: student_status   
+    type: object
+    x-go-package: github.com/iAmPlus/hotels/models
+  register:
+    description: Register Student
+    properties:
+      teacher_id:
+        type: string
+        x-go-name: teacher_id
+      students:
+        items:
+          $ref: '#/definitions/student'
+        type: array
+    type: object
+    x-go-package: github.com/iAmPlus/hotels/models
+  common_students:
+    description: Register Student
+    properties:
+      students:
+        items:
+          $ref: '#/definitions/student'
+        type: array
+    type: object
+    x-go-package: github.com/iAmPlus/hotels/models
+  suspend_students:
+    description: Suspend Students
+    properties:
+      student_id:
+        type: string
+        x-go-name: student_id
+    type: object
+    x-go-package: github.com/iAmPlus/hotels/models
+  retrieve_for_notifications:
+    description: Retrieve for Notifications
+    properties:
+      notification:
+        type: string
+        x-go-name: notification
+      teacher_id:
+        type: string
+        x-go-name: teacher_id
+    type: object
+    x-go-package: github.com/iAmPlus/hotels/models
+  recipients:
+    description: Recipients
+    properties:
+      students:
+        items:
+          $ref: '#/definitions/student'
+        type: array
+    type: object
+    x-go-package: github.com/iAmPlus/hotels/models
+  pagestate:
+    properties:
+      pageid:
+        format: int64
+        type: integer
+        x-go-name: PageID
+      pagesize:
+        format: int64
+        type: integer
+        x-go-name: PageSize
+    type: object
+    x-go-name: PageState  
+  pagination_data:
+    properties:
+      page:
+        format: int64
+        type: integer
+        x-go-name: Page
+      perPage:
+        format: int64
+        type: integer
+        x-go-name: PerPage
+      total:
+        format: int64
+        type: integer
+        x-go-name: Total
+      totalPage:
+        format: int64
+        type: integer
+        x-go-name: TotalPage
+    type: object
+    x-go-package: github.com/iAmPlus/skill-news-go/common
